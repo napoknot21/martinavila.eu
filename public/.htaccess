@@ -1,0 +1,57 @@
+# Apache configuration for the static export on LetsHost (shared hosting).
+# Copied to out/.htaccess by the build; upload it with the rest of out/.
+
+Options -Indexes -MultiViews
+DirectoryIndex index.html
+ErrorDocument 404 /404.html
+
+RewriteEngine On
+
+# Force HTTPS once the SSL certificate is active in the control panel
+# (uncomment the two lines below).
+# RewriteCond %{HTTPS} off
+# RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# www → bare domain (canonical URLs use https://martinavila.eu).
+RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+RewriteRule ^ %{REQUEST_SCHEME}://%1%{REQUEST_URI} [L,R=301]
+
+# Clean URLs: the export writes /contact.html AND a /contact/ folder (navigation
+# data). Without this, Apache would redirect /contact to the folder.
+DirectorySlash Off
+RewriteRule ^(.+)/$ /$1 [L,R=301]
+RewriteCond %{DOCUMENT_ROOT}/$1.html -f
+RewriteRule ^(.+)$ /$1.html [L]
+
+# Social images and the Apple touch icon are written without an extension.
+<FilesMatch "^(opengraph-image|twitter-image|apple-icon)$">
+  ForceType image/png
+</FilesMatch>
+
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set X-Frame-Options "DENY"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+  Header always set Cross-Origin-Opener-Policy "same-origin"
+  # Content-Security-Policy. Scripts and styles: own origin only. 'unsafe-inline'
+  # is required because a static export cannot use nonces (Next.js inlines its
+  # page data). The only outside connection allowed is Formspree.
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; media-src 'self'; connect-src 'self' https://formspree.io; worker-src 'self' blob:; form-action 'self' https://formspree.io; frame-ancestors 'none'; base-uri 'self'; object-src 'none'"
+  # Once HTTPS works (see the top of this file), also uncomment:
+  # Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+  # Hashed build assets never change: cache them for a year.
+  <FilesMatch "\.(js|css|woff2)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+  <FilesMatch "\.(jpg|webp|png|svg|ico)$">
+    Header set Cache-Control "public, max-age=604800"
+  </FilesMatch>
+  <FilesMatch "\.(html|txt|xml)$">
+    Header set Cache-Control "public, max-age=0, must-revalidate"
+  </FilesMatch>
+</IfModule>
+
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/css text/xml application/javascript application/json image/svg+xml
+</IfModule>

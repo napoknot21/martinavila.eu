@@ -1,0 +1,1011 @@
+@import 'tailwindcss';
+
+/* ------------------------------------------------------------------
+   Design tokens — the single source for colour, type and layout.
+   Tailwind utilities below are mapped onto these custom properties.
+   ------------------------------------------------------------------ */
+:root {
+  /* Colour */
+  --ink: #0b2545;
+  --accent: #1f4fa3;
+  --steel: #3d6893;
+  --paper: #f3f5f9;
+  --white: #ffffff;
+  --rule: #d5dce8;
+  --sky: #8db0ec;
+  --muted: #4a5a73;
+
+  /* Contextual colours (overridden inside navy sections) */
+  --fg: var(--ink);
+  --fg-muted: var(--muted);
+  --bg: var(--paper);
+  --line: var(--rule);
+  --focus: var(--accent);
+
+  /* Font stacks (next/font variables first, then real fallbacks) */
+  --stack-display: var(--font-display), Georgia, 'Times New Roman', serif;
+  --stack-title: var(--font-title), var(--font-display), Georgia, 'Times New Roman', serif;
+  --stack-body: var(--font-body), system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --stack-mono: var(--font-mono), ui-monospace, 'SFMono-Regular', Menlo, monospace;
+
+  /* Type scale: display 72 / h1 48 / h2 32 / h3 20 / body 16–18 / mono 12–13 px */
+  --step-display: clamp(2.625rem, 1.55rem + 3.9vw, 4.5rem);
+  --step-1: clamp(2.125rem, 1.6rem + 1.9vw, 3rem);
+  --step-2: clamp(1.5rem, 1.25rem + 0.9vw, 2rem);
+  --step-3: clamp(1.125rem, 1.08rem + 0.2vw, 1.25rem);
+  --step-body: clamp(1rem, 0.96rem + 0.18vw, 1.125rem);
+  --step-base: 1rem;
+  --step-label: clamp(0.75rem, 0.73rem + 0.08vw, 0.8125rem);
+
+  /* Layout */
+  --gutter: max(16px, 4vw);
+  --max-width: 1280px;
+  --header-h: 4.5rem;
+  --radius: 4px;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.215, 0.61, 0.355, 1); /* ≈ power3.out */
+  --dur: 600ms;
+}
+
+/* Fonts: next/font defines --font-display, --font-body and --font-mono on <html>.
+   Tailwind's default font tokens are removed so they never shadow those
+   variables; the font-* utilities are declared with @utility below. */
+@theme {
+  --font-*: initial;
+}
+
+@utility font-display {
+  font-family: var(--stack-display);
+}
+@utility font-title {
+  font-family: var(--stack-title);
+}
+@utility font-body {
+  font-family: var(--stack-body);
+}
+@utility font-mono {
+  font-family: var(--stack-mono);
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-accent: var(--accent);
+  --color-steel: var(--steel);
+  --color-paper: var(--paper);
+  --color-white: var(--white);
+  --color-rule: var(--rule);
+  --color-sky: var(--sky);
+  --color-muted: var(--muted);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-line: var(--line);
+
+  --text-display: var(--step-display);
+  --text-display--line-height: 1.04;
+  --text-h1: var(--step-1);
+  --text-h1--line-height: 1.1;
+  --text-h2: var(--step-2);
+  --text-h2--line-height: 1.22;
+  --text-h3: var(--step-3);
+  --text-h3--line-height: 1.4;
+  --text-body: var(--step-body);
+  --text-body--line-height: 1.6;
+  --text-label: var(--step-label);
+  --text-label--line-height: 1.5;
+
+  --radius-sm: var(--radius);
+  --ease-out: var(--ease-out);
+}
+
+/* ------------------------------------------------------------------
+   Base
+   ------------------------------------------------------------------ */
+@layer base {
+  html {
+    background: var(--paper);
+    color: var(--ink);
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    scroll-padding-top: var(--header-h);
+  }
+
+  body {
+    min-height: 100dvh;
+    font-family: var(--stack-body);
+    font-size: var(--step-body);
+    line-height: 1.6;
+    background: var(--bg);
+    color: var(--fg);
+    overflow-x: clip;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--stack-display);
+    font-weight: 400;
+    text-wrap: balance;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  ::selection {
+    background: var(--sky);
+    color: var(--ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Components and utilities
+   ------------------------------------------------------------------ */
+@layer components {
+  /* Centred 1,280 px container with fluid side gutters. */
+  .wrap {
+    width: 100%;
+    max-width: calc(var(--max-width) + 2 * var(--gutter));
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  /* 12-column grid. */
+  .grid-12 {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: clamp(16px, 2vw, 32px);
+  }
+
+  /* Mono utility label: section numbers, coordinates, figures. */
+  .label {
+    font-family: var(--stack-mono);
+    font-size: var(--step-label);
+    font-weight: 400;
+    line-height: 1.5;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .measure {
+    max-width: 65ch;
+  }
+
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Navy section: flips the contextual tokens. */
+  .on-ink {
+    --fg: var(--white);
+    --fg-muted: var(--sky);
+    --bg: var(--ink);
+    --line: rgb(141 176 236 / 0.24);
+    --focus: var(--sky);
+    background: var(--ink);
+    color: var(--white);
+  }
+
+  /* Hairline-separated list, like an annual report. */
+  .hairlines > * + * {
+    border-top: 1px solid var(--line);
+  }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6em;
+    min-height: 2.75rem;
+    padding: 0.7rem 1.35rem;
+    border: 1px solid currentColor;
+    border-radius: var(--radius);
+    font-family: var(--stack-body);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    line-height: 1.2;
+    white-space: nowrap;
+    transition:
+      background-color 200ms var(--ease-out),
+      color 200ms var(--ease-out),
+      border-color 200ms var(--ease-out);
+  }
+  .btn-solid {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--white);
+  }
+  .btn-solid:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .on-ink .btn-solid {
+    background: var(--white);
+    border-color: var(--white);
+    color: var(--ink);
+  }
+  .on-ink .btn-solid:hover {
+    background: var(--sky);
+    border-color: var(--sky);
+  }
+  .btn-outline {
+    background: transparent;
+    color: var(--fg);
+    border-color: color-mix(in srgb, var(--fg) 45%, transparent);
+  }
+  .btn-outline:hover {
+    border-color: var(--fg);
+  }
+  .btn-sm {
+    min-height: 2.25rem;
+    padding: 0.45rem 0.95rem;
+    font-size: 0.875rem;
+  }
+
+  /* Underlined text link */
+  .link {
+    color: var(--accent);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+    transition: text-decoration-color 200ms var(--ease-out);
+  }
+  .on-ink .link {
+    color: var(--sky);
+  }
+  .link:hover {
+    text-decoration-thickness: 2px;
+  }
+
+  .skip-link {
+    position: absolute;
+    left: var(--gutter);
+    top: -100px;
+    z-index: 100;
+    padding: 0.6rem 1rem;
+    background: var(--ink);
+    color: var(--white);
+    border-radius: var(--radius);
+  }
+  .skip-link:focus {
+    top: 0.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Motion (CSS side). JS only flips data attributes.
+   ------------------------------------------------------------------ */
+/* Reveal (components/motion/Reveal.tsx): 600 ms, power3.out, 24 px rise, 60 ms stagger. */
+[data-reveal='self'][data-reveal-state],
+[data-reveal='children'][data-reveal-state] > * {
+  transition:
+    opacity var(--dur) var(--ease-out),
+    transform var(--dur) var(--ease-out);
+  transition-delay: calc(var(--reveal-delay, 0ms) + var(--i, 0) * var(--reveal-step, 60ms));
+}
+[data-reveal='self'][data-reveal-state='pending'],
+[data-reveal='children'][data-reveal-state='pending'] > * {
+  opacity: 0;
+  transform: translateY(24px);
+}
+
+/* Line diagrams: shapes use pathLength="1" so one dash covers the whole stroke. */
+.draw {
+  stroke-dasharray: 1 1;
+  stroke-dashoffset: 0;
+}
+[data-reveal-state] .draw {
+  transition: stroke-dashoffset 1100ms var(--ease-out);
+  transition-delay: calc(var(--reveal-delay, 0ms) + var(--d, 0) * 70ms);
+}
+[data-reveal-state='pending'] .draw {
+  stroke-dashoffset: 1;
+}
+[data-reveal-state] .draw-fade {
+  transition: opacity 600ms var(--ease-out) 500ms;
+}
+[data-reveal-state='pending'] .draw-fade {
+  opacity: 0;
+}
+
+/* Home § 02 rows: on desktop hover, the diagram slides in and draws itself. */
+@media (hover: hover) and (min-width: 768px) {
+  .toc-row .toc-diagram {
+    opacity: 0;
+    transform: translateX(24px);
+    transition:
+      opacity 400ms var(--ease-out),
+      transform 600ms var(--ease-out);
+  }
+  .toc-row .toc-diagram .draw {
+    stroke-dashoffset: 1;
+    transition: stroke-dashoffset 600ms var(--ease-out);
+    transition-delay: calc(var(--d, 0) * 40ms);
+  }
+  .toc-row:is(:hover, :focus-visible) .toc-diagram {
+    opacity: 1;
+    transform: none;
+  }
+  .toc-row {
+    transition: background-color 300ms var(--ease-out);
+  }
+  .toc-row:is(:hover, :focus-visible) {
+    background-color: rgb(255 255 255 / 0.6);
+  }
+  .toc-row:is(:hover, :focus-visible) .toc-diagram .draw {
+    stroke-dashoffset: 0;
+  }
+  .toc-row .toc-arrow {
+    transition: transform 400ms var(--ease-out);
+  }
+  .toc-row:is(:hover, :focus-visible) .toc-arrow {
+    transform: translateX(6px);
+  }
+}
+
+/* Faint drafting grid behind § 01, where the hero surface lands. */
+.drafting-grid {
+  background-image:
+    linear-gradient(to right, rgb(213 220 232 / 0.55) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(213 220 232 / 0.55) 1px, transparent 1px);
+  background-size: 48px 48px;
+  background-position: center top;
+}
+
+/* Loader (scene 0): pure CSS, so it can never get stuck if JS fails.
+   Mark fades in (300 ms), its line draws (500 ms), then the screen slides up
+   (yPercent -100, 700 ms, power4.inOut) and the hero headline lines rise in
+   with a 60 ms stagger. The inline script in the root layout sets
+   data-loader="skip" on later page loads of the session. */
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  background: var(--ink);
+  animation: loader-out 700ms cubic-bezier(0.77, 0, 0.175, 1) 850ms forwards;
+}
+.loader-mark {
+  width: 84px;
+  height: 84px;
+  opacity: 0;
+  animation: loader-fade 300ms var(--ease-out) forwards;
+}
+.loader-line {
+  transform-box: fill-box;
+  transform-origin: left center;
+  transform: scaleX(0);
+  animation: loader-draw 500ms var(--ease-out) 300ms forwards;
+}
+@keyframes loader-fade {
+  to {
+    opacity: 1;
+  }
+}
+@keyframes loader-draw {
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes loader-out {
+  to {
+    transform: translateY(-100%);
+    visibility: hidden;
+  }
+}
+html[data-loader='skip'] .loader {
+  display: none;
+}
+
+/* Hero headline lines rise in as the loader leaves (first visit only). */
+html:not([data-loader='skip']) .hero-line {
+  animation: hero-rise var(--dur) var(--ease-out) both;
+  animation-delay: calc(1250ms + var(--i, 0) * 60ms);
+}
+/* Transform only: the text is painted (under the loader) from the first
+   frame, so it counts as the Largest Contentful Paint immediately. */
+@keyframes hero-rise {
+  from {
+    transform: translateY(0.45em);
+  }
+}
+
+/* Lenis */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-stopped {
+  overflow: clip;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loader {
+    display: none;
+  }
+  .hero-line {
+    animation: none !important;
+  }
+  [data-reveal-state],
+  [data-reveal-state] > * {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .draw {
+    stroke-dashoffset: 0 !important;
+  }
+}
+
+/* Mobile menu: links rise in with a 60 ms stagger each time the menu opens. */
+.menu-rise {
+  animation: menu-rise var(--dur) var(--ease-out) both;
+}
+@keyframes menu-rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+}
+
+/* /services — How a project runs: track, scrubbed progress line (--p) and steps. */
+.process {
+  --p: 1;
+}
+.process-track,
+.process-line {
+  position: absolute;
+  left: 7px;
+  top: 0.4rem;
+  bottom: 0.4rem;
+  width: 1px;
+}
+.process-track {
+  background: var(--line);
+}
+.process-line {
+  background: var(--sky);
+  transform-origin: top center;
+  transform: scaleY(var(--p));
+}
+.process-dot {
+  position: absolute;
+  left: 0;
+  top: 0.15rem;
+  width: 15px;
+  height: 15px;
+  border: 1px solid var(--sky);
+  border-radius: 50%;
+  background: var(--sky);
+  transition:
+    background-color 300ms var(--ease-out),
+    border-color 300ms var(--ease-out);
+}
+.process-step {
+  transition: opacity 400ms var(--ease-out);
+}
+.process[data-live] .process-step:not([data-on]) {
+  opacity: 0.45;
+}
+.process[data-live] .process-step:not([data-on]) .process-dot {
+  background: var(--ink);
+  border-color: var(--line);
+}
+@media (min-width: 768px) {
+  .process-track,
+  .process-line {
+    left: 0;
+    right: 0;
+    top: 7px;
+    bottom: auto;
+    width: auto;
+    height: 1px;
+  }
+  .process-line {
+    transform-origin: left center;
+    transform: scaleX(var(--p));
+  }
+  .process-dot {
+    top: 0;
+  }
+}
+
+/* Line diagrams: stroke width in user units, set per diagram (--sw) so lines are 1.25 px on screen. */
+.diagram [stroke]:not([stroke='none']) {
+  stroke-width: var(--sw, 1.25);
+}
+
+/* ------------------------------------------------------------------
+   /about
+   ------------------------------------------------------------------ */
+/* Opening: photo settles from 1.08 to 1; lines rise with an 80 ms stagger. */
+.opening-media {
+  animation: opening-zoom 2s var(--ease-out) both;
+}
+@keyframes opening-zoom {
+  from {
+    transform: scale(1.08);
+  }
+}
+.opening-lines > * {
+  animation: opening-rise var(--dur) var(--ease-out) both;
+  animation-delay: calc(200ms + var(--i, 0) * 80ms);
+}
+.opening-lines > :nth-child(1) {
+  --i: 0;
+}
+.opening-lines > :nth-child(2) {
+  --i: 1;
+  animation-name: opening-rise-transform;
+}
+.opening-lines > :nth-child(3) {
+  --i: 2;
+}
+.opening-lines > :nth-child(4) {
+  --i: 3;
+}
+.opening-lines > :nth-child(5) {
+  --i: 4;
+}
+.opening-lines > :nth-child(6) {
+  --i: 5;
+}
+/* Starts from a visible state (CLAUDE.md): text at opacity 0 is not counted
+   as painted until the animation runs, which delayed LCP by about 1.4 s. */
+@keyframes opening-rise {
+  from {
+    opacity: 0.4;
+    transform: translateY(24px);
+  }
+}
+/* The name rises without fading. */
+@keyframes opening-rise-transform {
+  from {
+    transform: translateY(24px);
+  }
+}
+.scroll-line {
+  transform-origin: top center;
+  animation: scroll-line 2.2s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+@keyframes scroll-line {
+  0% {
+    transform: scaleY(0);
+    transform-origin: top center;
+  }
+  45% {
+    transform: scaleY(1);
+    transform-origin: top center;
+  }
+  55% {
+    transform: scaleY(1);
+    transform-origin: bottom center;
+  }
+  100% {
+    transform: scaleY(0);
+    transform-origin: bottom center;
+  }
+}
+
+/* Journey, stack mode (default: mobile, reduced motion, no JS). */
+.chapter-media {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--ink);
+}
+.chapter-body {
+  padding-block: 2.5rem 4rem;
+}
+.chapter-name {
+  font-size: var(--step-display);
+  line-height: 1.02;
+}
+.chapter-letters {
+  display: inline-block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+  vertical-align: bottom;
+}
+.journey-shade,
+.timeline-h {
+  display: none;
+}
+
+/* Journey, cinema mode (desktop with motion; set by Journey after hydration). */
+.journey[data-mode='cinema'] .journey-stage {
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+}
+.journey[data-mode='cinema'] .chapter {
+  position: absolute;
+  inset: 0;
+}
+.journey[data-mode='cinema'] .chapter-media {
+  position: absolute;
+  inset: 0;
+  aspect-ratio: auto;
+  z-index: 0;
+}
+.journey[data-mode='cinema'] .journey-shade {
+  display: block;
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      90deg,
+      rgb(11 37 69 / 0.9) 0%,
+      rgb(11 37 69 / 0.55) 42%,
+      rgb(11 37 69 / 0.1) 75%
+    ),
+    linear-gradient(0deg, rgb(11 37 69 / 0.95) 0%, rgb(11 37 69 / 0) 38%);
+}
+.journey[data-mode='cinema'] .chapter-body {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  padding: 0;
+  /* Reveal never animates the stage itself in cinema mode. */
+  opacity: 1 !important;
+  transform: none !important;
+}
+.journey[data-mode='cinema'] .chapter-inner {
+  position: relative;
+  display: flex;
+  height: 100%;
+  align-items: flex-end;
+  padding-bottom: 9.5rem;
+}
+.journey[data-mode='cinema'] .chapter-name {
+  font-size: clamp(4rem, 1.5rem + 6vw, 7.5rem);
+}
+.journey[data-mode='cinema'] .journey-axis {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 1.75rem;
+  z-index: 30;
+}
+.journey[data-mode='cinema'] .timeline-h {
+  display: block;
+}
+.journey[data-mode='cinema'] .timeline-v {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Horizontal timeline */
+.timeline-h {
+  position: relative;
+  height: 80px;
+  --tl: 0%;
+}
+.tl-item {
+  position: absolute;
+  color: var(--sky);
+  opacity: 0.4;
+  transition:
+    opacity 300ms var(--ease-out),
+    color 300ms var(--ease-out);
+}
+.tl-label {
+  display: block;
+  font-family: var(--stack-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  line-height: 1.3;
+}
+.tl-bar {
+  display: block;
+  height: 3px;
+  margin-top: 4px;
+  min-width: 3px;
+  background: currentColor;
+}
+.journey-stage[data-current='0'] .tl-item[data-ch='0'],
+.journey-stage[data-current='1'] .tl-item[data-ch='1'],
+.journey-stage[data-current='2'] .tl-item[data-ch='2'],
+.journey-stage[data-current='3'] .tl-item[data-ch='3'] {
+  opacity: 1;
+  color: var(--white);
+}
+.tl-axis {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 58px;
+  height: 1px;
+  background: var(--line);
+}
+.tl-tick {
+  position: absolute;
+  top: 64px;
+  font-family: var(--stack-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--sky);
+  transform: translateX(-50%);
+  font-variant-numeric: tabular-nums;
+}
+.tl-tick::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -9px;
+  width: 1px;
+  height: 5px;
+  background: var(--line);
+}
+.tl-dot {
+  position: absolute;
+  top: 58px;
+  left: var(--tl);
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--sky);
+  box-shadow:
+    0 0 0 4px rgb(141 176 236 / 0.18),
+    0 0 14px 2px rgb(141 176 236 / 0.6);
+  transform: translate(-50%, -50%);
+}
+
+/* Europe map: Dublin pulses once when the route arrives. */
+.map-pulse {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.map-pulse.is-pulsing {
+  animation: map-pulse 1.4s var(--ease-out) 1;
+}
+@keyframes map-pulse {
+  0% {
+    opacity: 0.9;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(5);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .opening-media,
+  .opening-lines > *,
+  .scroll-line {
+    animation: none !important;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Reading pages (contact, legal, privacy, 404): serif only.
+   Libre Caslon Display for titles, Libre Caslon Text for text,
+   JetBrains Mono for labels (.label keeps its own family).
+   ------------------------------------------------------------------ */
+.serif-page {
+  font-family: var(--stack-display);
+  font-size: 1.125rem;
+  line-height: 1.6;
+}
+.serif-page :is(h1, h2, h3, .font-title) {
+  font-family: var(--stack-title);
+  font-weight: 400;
+}
+.serif-page .prose-text {
+  max-width: 65ch;
+}
+/* Contact title, 64 px on desktop. */
+.text-contact {
+  font-size: clamp(2.5rem, 1.6rem + 3.2vw, 4rem);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+}
+/* 404 title, 72 px on desktop. */
+.text-404 {
+  font-size: clamp(2.75rem, 1.6rem + 4.2vw, 4.5rem);
+  line-height: 1.04;
+}
+
+/* The two contact columns fade in once. */
+.fade-once {
+  animation: fade-once 400ms var(--ease-out) both;
+}
+/* From a visible state, so the text counts as painted on the first frame. */
+@keyframes fade-once {
+  from {
+    opacity: 0.35;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Large external link with an arrow that moves 4 px on hover. */
+.direct-link .arrow {
+  display: inline-block;
+  transition: transform 200ms var(--ease-out);
+}
+.direct-link:hover .arrow,
+.direct-link:focus-visible .arrow {
+  transform: translate(4px, -4px);
+}
+
+/* Form fields: underline only, royal blue 2 px on focus (no layout shift). */
+.field {
+  position: relative;
+}
+.field-input {
+  display: block;
+  width: 100%;
+  padding: 1.4rem 0 0.45rem;
+  border: 0;
+  border-bottom: 1px solid var(--rule);
+  border-radius: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 1.0625rem;
+  line-height: 1.5;
+  outline: none;
+  transition:
+    border-color 160ms var(--ease-out),
+    box-shadow 160ms var(--ease-out);
+}
+.field-input::placeholder {
+  color: transparent;
+  transition: color 160ms var(--ease-out);
+}
+.field-input:focus {
+  border-bottom-color: var(--accent);
+  box-shadow: inset 0 -1px 0 var(--accent);
+}
+.field-input:focus::placeholder {
+  color: color-mix(in srgb, var(--muted) 75%, transparent);
+}
+.field-input[aria-invalid='true'] {
+  border-bottom-color: #a12a2a;
+}
+.field-input[aria-invalid='true']:focus {
+  box-shadow: inset 0 -1px 0 #a12a2a;
+}
+textarea.field-input {
+  resize: vertical;
+  min-height: 9rem;
+}
+.field-label {
+  position: absolute;
+  top: 1.45rem;
+  left: 0;
+  font-family: var(--stack-mono);
+  font-size: 0.8125rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  pointer-events: none;
+  transform-origin: left top;
+  transition:
+    transform 160ms var(--ease-out),
+    color 160ms var(--ease-out);
+}
+.field-input:focus + .field-label,
+.field-input:not(:placeholder-shown) + .field-label {
+  transform: translateY(-1.3rem) scale(0.86);
+}
+.field-input:focus + .field-label {
+  color: var(--accent);
+}
+
+/* Single-choice chips. */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.5rem;
+  padding: 0.5rem 0.85rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--white);
+  color: var(--ink);
+  font-family: var(--stack-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background-color 160ms var(--ease-out),
+    border-color 160ms var(--ease-out),
+    color 160ms var(--ease-out);
+}
+.chip:hover {
+  border-color: var(--ink);
+}
+.chip:has(:checked) {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--white);
+}
+.chip:has(:focus-visible) {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Submit: full width, mono; the check mark scales in over 300 ms. */
+.btn-send {
+  display: flex;
+  width: 100%;
+  min-height: 3.25rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  border-radius: var(--radius);
+  background: var(--ink);
+  color: var(--white);
+  font-family: var(--stack-mono);
+  font-size: 0.8125rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: background-color 200ms var(--ease-out);
+}
+.btn-send:hover:not(:disabled) {
+  background: var(--accent);
+}
+.btn-send:disabled {
+  cursor: wait;
+}
+.btn-send .check {
+  animation: check-in 300ms var(--ease-out) both;
+}
+@keyframes check-in {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-once,
+  .btn-send .check {
+    animation: none;
+  }
+  .direct-link .arrow {
+    transition: none;
+  }
+}
